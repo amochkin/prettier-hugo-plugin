@@ -14,6 +14,9 @@ jobs:
     permissions: write-all
     timeout-minutes: 10
 
+    env:
+      PUBLISH_DIR: lib
+
     steps:
       - uses: actions/checkout@v4
 
@@ -30,6 +33,6 @@ jobs:
         run: npm run build
 
       - name: Publish to npm
-        run: cd javascript && npm publish --access public
+        run: cd "${PUBLISH_DIR}" && npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
