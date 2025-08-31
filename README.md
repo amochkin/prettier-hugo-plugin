@@ -1,174 +1,157 @@
-# prettier-plugin-go-template
+# prettier-hugo-plugin
 
-[![NPM Badge](https://img.shields.io/npm/v/prettier-plugin-go-template)](https://www.npmjs.com/package/prettier-plugin-go-template) [![CodeCov Badge](https://img.shields.io/codecov/c/github/niklaspor/prettier-plugin-go-template)](https://codecov.io/gh/NiklasPor/prettier-plugin-go-template) [![Contributions Badge](https://img.shields.io/github/all-contributors/niklaspor/prettier-plugin-go-template)](#contributors-)
+Prettier plugin for formatting Hugo/Go HTML templates. It teaches Prettier how to parse and print Go template tags embedded in HTML (used by Hugo), while delegating HTML formatting to Prettier’s HTML parser.
 
-Formatter plugin for go template files. The only peer dependency is [prettier](https://www.npmjs.com/package/prettier).
+This plugin supports common Hugo/Go template constructs like if/else, range, with, define, block, and handles inline statements, multi-block constructs (e.g. else), and sections you don’t want to reformat.
 
-```bash
-npm install --save-dev prettier prettier-plugin-go-template
+
+## Why this plugin?
+- Works with Prettier 3.x
+- Understands Go template delimiters like {{- ... -}}, {{< ... >}}, and {{% ... %}}
+- Preserves and embeds formatted HTML around Go template nodes
+- Supports prettier-ignore for both single lines and whole blocks
+- Respects bracket spacing option for template statements
+
+
+## Requirements
+- Node.js >= 20
+- Prettier ^3.0.0
+
+
+## Installation
+Install Prettier and the plugin as dev dependencies:
+
+- npm: `npm i -D prettier prettier-hugo-plugin`
+- pnpm: `pnpm add -D prettier prettier-hugo-plugin`
+- yarn: `yarn add -D prettier prettier-hugo-plugin`
+
+
+## Usage
+Prettier will auto-load plugins from node_modules when referenced in your config. Add the plugin and configure Prettier to use the GoTemplate language for your Hugo template extensions.
+
+Example prettier config (prettier.config.cjs/mjs or .prettierrc):
+
 ```
-
-Starting with Prettier 3 auto-discovery has been removed. Configuration is required ⬇️
-
-```json
-// .prettierrc
-{
-  "plugins": ["prettier-plugin-go-template"]
-}
-```
-
-The following file types will be detected automatically:
-`.gohtml`, `.gotmpl`, `.go.tmpl`, `.tmpl`, `.tpl`, `.html.tmpl`
-If you want to add support for `.html` read the section on it below the examples.
-
-<table>
-<tr>
-<th>Input</th>
-<th>Output</th>
-</tr>
-<tr>
-<td>
-
-<!-- prettier-ignore-start -->
-```html
-{{ if or .Prev .Next -}}
-{{ $p := where site.Pages }}
-<div class="my-navigation">
-{{ with $p.Next . -}}
-<a href="{{ .RelPermalink }}">
-<div class="row">
-<div class="cell py-2">
-  {{ .Title }} 
-</div> </div> </a>
-{{ end -}}
-</div>
-{{ end -}}
-```
-<!-- prettier-ignore-end -->
-
-</td>
-<td>
-
-<!-- prettier-ignore-start -->
-```html
-{{ if or .Prev .Next -}}
-  {{ $p := where site.Pages }}
-  <div class="my-navigation">
-    {{ with $p.Next . -}}
-      <a href="{{ .RelPermalink }}">
-        <div class="row">
-          <div class="cell py-2">{{ .Title }}</div>
-        </div>
-      </a>
-    {{ end -}}
-  </div>
-{{ end -}}
-```
-<!-- prettier-ignore-end -->
-
-</td>
-</tr>
-</table>
-
-## GoHugo / `.html`
-
-To use it with GoHugo and basic `.html` files, you'll have to override the used parser inside your `.prettierrc` file:
-
-```json
-{
-  "plugins": ["prettier-plugin-go-template"],
-  "overrides": [
+/** @type {import('prettier').Config} */
+export default {
+  plugins: ["prettier-hugo-plugin"],
+  // Optional plugin option:
+  goTemplateBracketSpacing: true,
+  // Map typical Hugo template extensions to the GoTemplate parser
+  overrides: [
     {
-      "files": ["*.html"],
-      "options": {
-        "parser": "go-template",
-      },
+      files: [
+        "**/*.go.html",
+        "**/*.gohtml",
+        "**/*.gotmpl",
+        "**/*.go.tmpl",
+        "**/*.tmpl",
+        "**/*.tpl",
+        "**/*.html.tmpl",
+        "**/*.html.tpl",
+      ],
+      options: { parser: "go-template" },
     },
   ],
-}
+};
 ```
 
-## VSCode
+Alternatively, you can pass the plugin on the CLI:
 
-Make sure to always have installed **both** dependencies:
+- Format a file: `npx prettier --plugin prettier-hugo-plugin --parser go-template path/to/template.html`
+- Or rely on overrides and just run: `npx prettier -w .`
 
-- `prettier`
-- `prettier-plugin-go-template`
 
-Also make sure that they are installed inside the same scope.
-Install both globally (`npm i -g`) or locally – otherwise prettier may not pick up the plugin.
+## Supported syntax and behavior
+- Go/Hugo delimiters: `{{ ... }}`, `{{- ... -}}`, `{{< ... >}}`, `{{% ... %}}`, and comment pairs `{{/* ... */}}`
+- Block keywords: `if`, `range`, `block`, `with`, `define`, `else`, `end`
+- Prettier ignore controls:
+  - Single line: put `prettier-ignore` in an HTML comment or Go template comment right before a statement
+  - Block: wrap a section with `{{ prettier-ignore-start }}` ... `{{ end }}`
+- Preserves empty lines after blocks when appropriate, to keep readable spacing
+- Avoids reformatting content inside <script> or <style> tags that contain Go template expressions
 
-> Note: The global setup additional requires setting your VSCode prettier path to your global prettier path. You can read in [this issue](https://github.com/NiklasPor/prettier-plugin-go-template/issues/58#issuecomment-1085060511) how to set it up – should be doable in less than a minute if you have npm & VSCode already running.
 
-## Additional Options
+## Examples
+Input:
 
-```js
-// .prettierrc
-{
-  /**
-   * Enables & disables spacing between go statements.
-   * E.g. {{ statement }} vs {{statement}}.
-   * Default: true
-   */
-  "goTemplateBracketSpacing": true
-}
+```
+{{if .Title}}
+<title>{{.Title}}</title>
+{{else}}
+<title>My Site</title>
+{{end}}
 ```
 
-## Ignoring Code
+Formatted (with goTemplateBracketSpacing: true):
 
-#### Single Block
-
-```html
-<div>
-  <!-- prettier-ignore -->
-  {{if }}
-  {{end }}
-</div>
+```
+{{ if .Title }}
+  <title>{{ .Title }}</title>
+{{ else }}
+  <title>My Site</title>
+{{ end }}
 ```
 
-#### Multiline
+Inline statements are grouped and break when long or multiline:
 
-```html
-<html>
-  {{/* prettier-ignore-start */}}
-  <script>
-    {{if }}
-    Whatever.
-    {{else }}
-    Psych.
-    {{end }}
-  </script>
-  {{/* prettier-ignore-end */}}
-</html>
+```
+<p>{{- with .Params.long 
+      -}}
+  {{ . }}
+{{- end -}}</p>
 ```
 
-## Contributors ✨
 
-Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+## Configuration options
+- goTemplateBracketSpacing (boolean, default: true)
+  - When true: prints space after `{{` and before `}}` around statements, for example `{{ if . }}`. When false: prints compact statements `{{if .}}`.
 
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable -->
-<table>
-  <tr>
-    <td align="center"><a href="https://github.com/alqu"><img src="https://avatars1.githubusercontent.com/u/12250845?v=4?s=100" width="100px;" alt=""/><br /><sub><b>alqu</b></sub></a><br /><a href="https://github.com/NiklasPor/prettier-plugin-go-template/issues?q=author%3Aalqu" title="Bug reports">🐛</a> <a href="https://github.com/NiklasPor/prettier-plugin-go-template/commits?author=alqu" title="Tests">⚠️</a> <a href="https://github.com/NiklasPor/prettier-plugin-go-template/commits?author=alqu" title="Code">💻</a></td>
-    <td align="center"><a href="https://www.gabrielmaldi.com"><img src="https://avatars3.githubusercontent.com/u/3728897?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Gabriel Monteagudo</b></sub></a><br /><a href="https://github.com/NiklasPor/prettier-plugin-go-template/issues?q=author%3Agabrielmaldi" title="Bug reports">🐛</a></td>
-    <td align="center"><a href="https://github.com/bgold0"><img src="https://avatars1.githubusercontent.com/u/4645400?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Bryan</b></sub></a><br /><a href="https://github.com/NiklasPor/prettier-plugin-go-template/issues?q=author%3Abgold0" title="Bug reports">🐛</a></td>
-    <td align="center"><a href="http://richtera.org"><img src="https://avatars2.githubusercontent.com/u/708186?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Andreas Richter</b></sub></a><br /><a href="https://github.com/NiklasPor/prettier-plugin-go-template/issues?q=author%3Arichtera" title="Bug reports">🐛</a></td>
-    <td align="center"><a href="https://noahbrenner.github.io/"><img src="https://avatars3.githubusercontent.com/u/24858379?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Noah Brenner</b></sub></a><br /><a href="https://github.com/NiklasPor/prettier-plugin-go-template/commits?author=noahbrenner" title="Code">💻</a> <a href="https://github.com/NiklasPor/prettier-plugin-go-template/commits?author=noahbrenner" title="Documentation">📖</a></td>
-    <td align="center"><a href="https://silverwind.io"><img src="https://avatars1.githubusercontent.com/u/115237?v=4?s=100" width="100px;" alt=""/><br /><sub><b>silverwind</b></sub></a><br /><a href="#ideas-silverwind" title="Ideas, Planning, & Feedback">🤔</a></td>
-    <td align="center"><a href="https://codeberg.org/cpence"><img src="https://avatars0.githubusercontent.com/u/297075?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Charles Pence</b></sub></a><br /><a href="https://github.com/NiklasPor/prettier-plugin-go-template/issues?q=author%3Acpence" title="Bug reports">🐛</a></td>
-  </tr>
-  <tr>
-    <td align="center"><a href="http://jasik.xyz"><img src="https://avatars.githubusercontent.com/u/10626596?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Caleb Jasik</b></sub></a><br /><a href="https://github.com/NiklasPor/prettier-plugin-go-template/issues?q=author%3Ajasikpark" title="Bug reports">🐛</a> <a href="https://github.com/NiklasPor/prettier-plugin-go-template/commits?author=jasikpark" title="Documentation">📖</a> <a href="#example-jasikpark" title="Examples">💡</a> <a href="#ideas-jasikpark" title="Ideas, Planning, & Feedback">🤔</a> <a href="#maintenance-jasikpark" title="Maintenance">🚧</a> <a href="#question-jasikpark" title="Answering Questions">💬</a></td>
-    <td align="center"><a href="http://DanGold.me"><img src="https://avatars.githubusercontent.com/u/8890238?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Dan Gold</b></sub></a><br /><a href="https://github.com/NiklasPor/prettier-plugin-go-template/issues?q=author%3ALandGod" title="Bug reports">🐛</a></td>
-    <td align="center"><a href="https://mtlynch.io"><img src="https://avatars.githubusercontent.com/u/7783288?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Michael Lynch</b></sub></a><br /><a href="https://github.com/NiklasPor/prettier-plugin-go-template/issues?q=author%3Amtlynch" title="Bug reports">🐛</a></td>
-  </tr>
-</table>
+All other formatting decisions are handled by Prettier’s standard HTML rules.
 
-<!-- markdownlint-restore -->
-<!-- prettier-ignore-end -->
 
-<!-- ALL-CONTRIBUTORS-LIST:END -->
+## File extensions and editor support
+This plugin registers a language named GoTemplate and associates it with these extensions:
+- .go.html, .gohtml, .gotmpl, .go.tmpl, .tmpl, .tpl, .html.tmpl, .html.tpl
 
-This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+Most editors using Prettier will pick up the plugin when configured. For VS Code, ensure the Prettier extension is enabled, and that the file is formatted with Prettier.
+
+
+## Prettier ignore
+- Ignore the next node/line:
+  - `<!-- prettier-ignore -->\n{{ .SomeValue }}`
+  - `{{/* prettier-ignore */}}\n{{ .SomeValue }}`
+- Ignore a whole block:
+  - `{{ prettier-ignore-start }}`
+  - ... any content inside will be treated as plain text and not reformatted
+  - `{{ end }}`
+
+
+## CLI tips
+- Dry run check: `npx prettier --check .`
+- Write changes: `npx prettier --write .`
+- Only Go/Hugo templates (if using overrides): `npx prettier --write "**/*.gotmpl"`
+
+
+## Troubleshooting
+- Plugin not applied: ensure plugins includes "prettier-hugo-plugin" and your files match overrides with parser "go-template".
+- Mixed HTML/Go errors: the plugin embeds formatted HTML and maps Go nodes back into place; malformed HTML near template delimiters can still confuse the HTML parser.
+- Unexpected reflow inside <script>/<style>: the plugin treats those with Go tags as unformattable to avoid breaking code. If necessary, use ignore controls.
+
+
+## Contributing
+- Requirements: Node 18+ recommended (Node 14+ supported), npm
+- Install: `npm ci`
+- Build: `npm run build`
+- Tests: `npm test` (watch: `npm run watch:test`)
+- Lint: `npm run lint`
+
+Please open issues and pull requests in the GitHub repository. Before submitting, run tests and lint.
+
+
+## Release and CI
+This repository includes a GitHub Actions workflow to publish to npm on release. To publish locally, use:
+- `npm run release:plugin` – build, collect/publish coverage, and publish
+- `npm run release:plugin:local` – publish to a local registry (e.g., verdaccio)
+
+Coverage can be uploaded with `npm run release:coverage` (requires CODECOV token env or npm config as defined in package.json).

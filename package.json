@@ -54,7 +54,7 @@
     "typescript-eslint": "^8.41.0"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=20.0.0"
   },
   "dependencies": {
     "ulid": "^3.0.1"
