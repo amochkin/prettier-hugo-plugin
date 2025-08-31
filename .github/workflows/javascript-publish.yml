@@ -15,7 +15,7 @@ jobs:
     timeout-minutes: 10
 
     env:
-      PUBLISH_DIR: lib
+      PUBLISH_DIR: ./
 
     steps:
       - uses: actions/checkout@v4
