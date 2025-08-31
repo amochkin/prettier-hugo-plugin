@@ -1,5 +1,9 @@
 # prettier-hugo-plugin
 
+[![npm version](https://img.shields.io/npm/v/prettier-hugo-plugin.svg)](https://www.npmjs.com/package/prettier-hugo-plugin)
+[![npm downloads](https://img.shields.io/npm/dm/prettier-hugo-plugin.svg)](https://www.npmjs.com/package/prettier-hugo-plugin)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+
 Prettier plugin for formatting Hugo/Go HTML templates. It teaches Prettier how to parse and print Go template tags embedded in HTML (used by Hugo), while delegating HTML formatting to Prettier’s HTML parser.
 
 This plugin supports common Hugo/Go template constructs like if/else, range, with, define, block, and handles inline statements, multi-block constructs (e.g. else), and sections you don’t want to reformat.
