@@ -1,15 +1,11 @@
 {
   "name": "prettier-hugo-plugin",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Prettier plugin for Hugo and Go templates",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/amochkin/prettier-hugo-plugin"
-  },
-  "author": {
-    "name": "Niklas Portmann",
-    "email": "niklaspor@gmail.com"
   },
   "keywords": [
     "prettier",
