@@ -7,7 +7,6 @@ import {
   SupportLanguage,
 } from "prettier";
 import { builders, utils } from "prettier/doc";
-import { parsers as htmlParsers } from "prettier/parser-html";
 import {
   GoBlock,
   GoInline,
@@ -25,8 +24,6 @@ import {
 
 import * as configs from "./configs";
 export { configs };
-
-const htmlParser = htmlParsers.html;
 const PLUGIN_KEY = "go-template";
 
 type ExtendedParserOptions = ParserOptions<GoNode> &
@@ -83,7 +80,7 @@ export const printers = {
 
       switch (node?.type) {
         case "inline":
-          return printInline(node, path, options, print);
+          return printInline(node, path, options);
         case "double-block":
           return printMultiBlock(node, path, print);
         case "unformattable":
@@ -225,7 +222,6 @@ function printInline(
   node: GoInline,
   path: FastPath<GoNode>,
   options: ExtendedParserOptions,
-  print: PrintFn,
 ): builders.Doc {
   const isBlockNode = isBlockEnd(node) || isBlockStart(node);
   const emptyLine =
