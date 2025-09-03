@@ -35,12 +35,9 @@ Prettier will auto-load plugins from node_modules when referenced in your config
 
 Example prettier config (prettier.config.cjs/mjs or .prettierrc) with recommended options:
 
-
-
 ```
-conset prettierHugoPlugin = require("prettier-hugo-plugin")
 /** @type {import('prettier').Config} */
-export default prettierHugoPlugin.configs.recommended;
+module.exports = require('prettier-hugo-plugin').configs.recommended;
 ```
 
 Example prettier config (prettier.config.cjs/mjs or .prettierrc) with overrides:
