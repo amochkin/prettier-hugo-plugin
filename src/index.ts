@@ -23,6 +23,9 @@ import {
   parseGoTemplate,
 } from "./parse";
 
+import * as configs from "./configs";
+export { configs };
+
 const htmlParser = htmlParsers.html;
 const PLUGIN_KEY = "go-template";
 

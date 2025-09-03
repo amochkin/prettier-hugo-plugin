@@ -33,7 +33,17 @@ Install Prettier and the plugin as dev dependencies:
 ## Usage
 Prettier will auto-load plugins from node_modules when referenced in your config. Add the plugin and configure Prettier to use the GoTemplate language for your Hugo template extensions.
 
-Example prettier config (prettier.config.cjs/mjs or .prettierrc):
+Example prettier config (prettier.config.cjs/mjs or .prettierrc) with recommended options:
+
+
+
+```
+conset prettierHugoPlugin = require("prettier-hugo-plugin")
+/** @type {import('prettier').Config} */
+export default prettierHugoPlugin.configs.recommended;
+```
+
+Example prettier config (prettier.config.cjs/mjs or .prettierrc) with overrides:
 
 ```
 /** @type {import('prettier').Config} */
@@ -45,14 +55,7 @@ export default {
   overrides: [
     {
       files: [
-        "**/*.go.html",
-        "**/*.gohtml",
-        "**/*.gotmpl",
-        "**/*.go.tmpl",
-        "**/*.tmpl",
-        "**/*.tpl",
-        "**/*.html.tmpl",
-        "**/*.html.tpl",
+        "**/*.html",
       ],
       options: { parser: "go-template" },
     },
